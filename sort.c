@@ -104,7 +104,7 @@ static void *quickSort(void *p)
         }
 
         pthread_t threadFirst;
-        pthread_t threadSecond;
+        //pthread_t threadSecond;
         int makeThread = 0;
 
         /* Allocate memory for left partition */
