@@ -49,7 +49,7 @@ static void insertSort(char **array, int left, int right)
 
 /* Recursive quick sort, but with a provision to use */
 /* insert sort when the range gets small.            */
-static void quickSort(void *p)
+static void quickSort(void* p)
 {
     SortParams *params = (SortParams *)p;
     char **array = params->array;
@@ -120,10 +120,19 @@ static void quickSort(void *p)
         }
         if (makeThread == 1)
         {
-
+            if (pthread_mutex_lock(&mutex))
+            {
+                fprintf(stderr, "Pthread Mutex Lock Error | Error Number %d : %s \n", errno, strerror(errno));
+                exit(EXIT_FAILURE);
+            }
             if (pthread_create(&threadFirst, NULL, (void *)quickSort, first))
             {
                 fprintf(stderr, "Pthread Mutex Create Error | Error Number %d : %s \n", errno, strerror(errno));
+                exit(EXIT_FAILURE);
+            }
+            if (pthread_mutex_unlock(&mutex))
+            {
+                fprintf(stderr, "Pthread Mutex Unlock Error | Error Number %d : %s \n", errno, strerror(errno));
                 exit(EXIT_FAILURE);
             }
         }
@@ -140,10 +149,19 @@ static void quickSort(void *p)
 
         if (makeThread == 1)
         {
-
-            if (pthread_create(&threadSecond, NULL, (void *)quickSort, second))
+            if (pthread_mutex_lock(&mutex))
+            {
+                fprintf(stderr, "Pthread Mutex Lock Error | Error Number %d : %s \n", errno, strerror(errno));
+                exit(EXIT_FAILURE);
+            }
+            if (pthread_create(&threadSecond, NULL, quickSort, second))
             {
                 fprintf(stderr, "Pthread Mutex Create Error | Error Number %d : %s \n", errno, strerror(errno));
+                exit(EXIT_FAILURE);
+            }
+            if (pthread_mutex_unlock(&mutex))
+            {
+                fprintf(stderr, "Pthread Mutex Unlock Error | Error Number %d : %s \n", errno, strerror(errno));
                 exit(EXIT_FAILURE);
             }
         }
@@ -154,17 +172,24 @@ static void quickSort(void *p)
 
         if (makeThread == 1)
         {
+            if (pthread_mutex_unlock(&mutex))
+            {
+                fprintf(stderr, "Pthread Mutex Unlock Error | Error Number %d : %s \n", errno, strerror(errno));
+                exit(EXIT_FAILURE);
+            }
 
             if (pthread_join(threadFirst, NULL))
             {
                 fprintf(stderr, "Pthread Mutex Join Error | Error Number %d : %s \n", errno, strerror(errno));
                 exit(EXIT_FAILURE);
             }
+
             if (pthread_join(threadSecond, NULL))
             {
                 fprintf(stderr, "Pthread Mutex Join Error | Error Number %d : %s \n", errno, strerror(errno));
                 exit(EXIT_FAILURE);
             }
+
             countThread--;
         }
 

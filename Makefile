@@ -1,11 +1,11 @@
 all: main.o sort.o sort.h
-	gcc -o sort main.o sort.o
+	gcc -Wall -pedantic -o sort main.o sort.o
 
 main.o: main.c
-	gcc -c main.c
+	gcc -Wall -pedantic -c main.c
 
 sort.o: sort.c
-	gcc -c sort.c
+	gcc -Wall -pedantic -c sort.c
 
 run: sort
 	./sort 
