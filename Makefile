@@ -1,5 +1,5 @@
 all: main.o sort.o sort.h
-	gcc -Wall -pedantic -o sort main.o sort.o
+	gcc -Wall -pedantic -pthread -o sort main.o sort.o
 
 main.o: main.c
 	gcc -Wall -pedantic -c main.c

@@ -105,7 +105,7 @@ static void *quickSort(void *p)
 
         pthread_t threadFirst;
         //pthread_t threadSecond;
-        int makeThread = 0;
+        int makeThread = 0; //False
 
         /* Allocate memory for left partition */
         SortParams *first = (SortParams *)malloc(sizeof(SortParams));
@@ -113,24 +113,25 @@ static void *quickSort(void *p)
         first->left = left;
         first->right = j;
 
+        if (pthread_mutex_lock(&mutex))
+        {
+            fprintf(stderr, "Pthread Mutex Lock Error | Error Number %d : %s \n", errno, strerror(errno));
+            exit(EXIT_FAILURE);
+        }
         if (countThread < maximumThreads)
         {
-            if (pthread_mutex_lock(&mutex))
-            {
-                fprintf(stderr, "Pthread Mutex Lock Error | Error Number %d : %s \n", errno, strerror(errno));
-                exit(EXIT_FAILURE);
-            }
-
             //Update thread count
             countThread++;
             makeThread = 1;
+        }
+        if (pthread_mutex_unlock(&mutex))
+        {
+            fprintf(stderr, "Pthread Mutex Unlock Error | Error Number %d : %s \n", errno, strerror(errno));
+            exit(EXIT_FAILURE);
+        }
 
-            if (pthread_mutex_unlock(&mutex))
-            {
-                fprintf(stderr, "Pthread Mutex Unlock Error | Error Number %d : %s \n", errno, strerror(errno));
-                exit(EXIT_FAILURE);
-            }
-
+        if (makeThread == 1)
+        {
             if (pthread_create(&threadFirst, NULL, quickSort, (void *)first))
             {
                 fprintf(stderr, "Pthread Mutex Create Error | Error Number %d : %s \n", errno, strerror(errno));
@@ -148,18 +149,7 @@ static void *quickSort(void *p)
         second->left = i;
         second->right = right;
 
-        /* if (makeThread == 1)
-        {
-            if (pthread_create(&threadSecond, NULL, quickSort, (void *)second))
-            {
-                fprintf(stderr, "Pthread Mutex Create Error | Error Number %d : %s \n", errno, strerror(errno));
-                exit(EXIT_FAILURE);
-            }
-        }
-        else
-        { */
         quickSort(second); /* sort the left partition    */
-                           // }
 
         if (makeThread == 1)
         {
@@ -169,13 +159,6 @@ static void *quickSort(void *p)
                 fprintf(stderr, "Pthread Mutex Join Error | Error Number %d : %s \n", errno, strerror(errno));
                 exit(EXIT_FAILURE);
             }
-
-            /*
-            if (pthread_join(threadSecond, NULL))
-            {
-                fprintf(stderr, "Pthread Mutex Join Error | Error Number %d : %s \n", errno, strerror(errno));
-                exit(EXIT_FAILURE);
-            }*/
 
             if (pthread_mutex_lock(&mutex))
             {
@@ -191,12 +174,15 @@ static void *quickSort(void *p)
                 fprintf(stderr, "Pthread Mutex Unlock Error | Error Number %d : %s \n", errno, strerror(errno));
                 exit(EXIT_FAILURE);
             }
+
+            makeThread = 0;
         }
 
         /* Free left and right partition memory */
         free(first);
         free(second);
     }
+
     else
     {
         insertSort(array, i, j); /* for a small range use insert sort */

@@ -75,13 +75,14 @@ int main(int argc, char** argv) {
     
     // run benchmark test with qsort
     
+    /*
     char** qArray = array;
     clock_gettime(CLOCK_MONOTONIC, &qstart);
     qsort(qArray, count, sizeof(char*), compare);
     clock_gettime(CLOCK_MONOTONIC, &qend);
     qelapsed = qend.tv_nsec - qstart.tv_nsec;
     printf("Qsort Time: %f\n", qelapsed); 
-    
+    */
     
     if (argc > 1) setSortThreads(atoi(argv[1]));
 
